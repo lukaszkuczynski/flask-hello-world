@@ -4,7 +4,7 @@ from urllib.parse import quote_plus, urlencode
 
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
-from flask import Flask, redirect, render_template, session, url_for
+from flask import Flask, abort, redirect, render_template, session, url_for
 
 app = Flask(__name__)
 
@@ -75,6 +75,14 @@ def home():
         session=session.get("user"),
         pretty=json.dumps(session.get("user"), indent=4),
     )
+
+
+@app.route("/locations")
+def locations():
+    if not session.get("user"):  # Replace with your auth logic
+        abort(403)
+    locations = [{"id": 1, "name": "Wroclaw"}, {"id": 2, "name": "Krakow"}]
+    return locations
 
 
 if __name__ == "__main__":
