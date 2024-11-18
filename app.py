@@ -7,7 +7,7 @@ from os import environ as env
 from typing import Dict
 
 from dotenv import find_dotenv, load_dotenv
-from flask import Flask, Response, g, jsonify, request
+from flask import Flask, Response, g, jsonify, request, url_for
 from flask_cors import cross_origin
 from jose import jwt
 from six.moves.urllib.request import urlopen
@@ -19,6 +19,17 @@ AUTH0_DOMAIN = env.get("AUTH0_DOMAIN")
 API_IDENTIFIER = env.get("API_IDENTIFIER")
 ALGORITHMS = ["RS256"]
 APP = Flask(__name__)
+
+DATA = [
+    {"id": 1, "name": "Item 1"},
+    {"id": 2, "name": "Item 2"},
+    {"id": 3, "name": "Item 3"},
+    {"id": 4, "name": "Item 4"},
+    {"id": 5, "name": "Item 5"},
+    {"id": 6, "name": "Item 6"},
+    {"id": 7, "name": "Item 7"},
+    {"id": 8, "name": "Item 8"},
+]
 
 
 # Format error response and append status code.
@@ -194,12 +205,45 @@ def public():
 @cross_origin(headers=["Content-Type", "Authorization"])
 @cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
 @requires_auth
-def private():
-    """A valid access token is required to access this route"""
-    response = (
-        "Hello from a private endpoint! You need to be authenticated to see this."
+def get_items():
+    page = request.args.get("page", default=1, type=int)
+    per_page = request.args.get("per_page", default=5, type=int)
+
+    # Validate pagination parameters
+    if page < 1 or per_page < 1:
+        return jsonify({"error": "Page and per_page must be positive integers"}), 400
+
+    # Calculate start and end indices
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    # Slice the data for pagination
+    paginated_data = DATA[start:end]
+
+    total_items = len(DATA)
+    total_pages = (total_items + per_page - 1) // per_page  # Round up
+
+    # Generate next link if there's a next page
+    next_link = None
+    if page < total_pages:
+        next_link = url_for(
+            "get_items", page=page + 1, per_page=per_page, _external=True
+        )
+
+    # Return the paginated response with metadata
+    response = jsonify(
+        {
+            "data": paginated_data,
+            "meta": {
+                "total_items": total_items,
+                "page": page,
+                "per_page": per_page,
+                "total_pages": total_pages,
+                "next": next_link,
+            },
+        }
     )
-    return jsonify(message=response)
+    return response
 
 
 if __name__ == "__main__":
