@@ -18,7 +18,7 @@ if ENV_FILE:
 AUTH0_DOMAIN = env.get("AUTH0_DOMAIN")
 API_IDENTIFIER = env.get("API_IDENTIFIER")
 ALGORITHMS = ["RS256"]
-APP = Flask(__name__)
+app = Flask(__name__)
 
 DATA = [
     {"id": 1, "name": "Item 1"},
@@ -44,7 +44,7 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-@APP.errorhandler(AuthError)
+@app.errorhandler(AuthError)
 def handle_auth_error(ex: AuthError) -> Response:
     """
     serializes the given AuthError as json and sets the response status code accordingly.
@@ -191,7 +191,7 @@ def requires_auth(func):
 
 
 # Controllers API
-@APP.route("/api/public")
+@app.route("/api/public")
 @cross_origin(headers=["Content-Type", "Authorization"])
 def public():
     """No access token required to access this route"""
@@ -201,7 +201,7 @@ def public():
     return jsonify(message=response)
 
 
-@APP.route("/api/locations")
+@app.route("/api/locations")
 @cross_origin(headers=["Content-Type", "Authorization"])
 @cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
 @requires_auth
@@ -247,4 +247,4 @@ def get_items():
 
 
 if __name__ == "__main__":
-    APP.run(host="0.0.0.0", port=env.get("PORT", 3000), debug=True)
+    app.run(host="0.0.0.0", port=env.get("PORT", 3000), debug=True)
