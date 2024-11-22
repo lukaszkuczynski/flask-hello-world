@@ -7,7 +7,7 @@ from os import environ as env
 from typing import Dict
 
 from dotenv import find_dotenv, load_dotenv
-from flask import Flask, Response, g, jsonify, request, url_for
+from flask import Flask, Response, g, jsonify, request
 from flask_cors import cross_origin
 from jose import jwt
 from six.moves.urllib.request import urlopen
@@ -225,14 +225,10 @@ def get_items():
 
     total_items = len(DATA)
     total_pages = (total_items + per_page - 1) // per_page  # Round up
-
-    # Generate next link if there's a next page
-    next_link = None
-    if page < total_pages:
-        next_link = url_for(
-            "get_items", page=page + 1, per_page=per_page, _external=True
-        )
-    maxTimestamp = max(el["timestamp"] for el in paginated_data)
+    if len(paginated_data) > 0:
+        maxTimestamp = max(el["timestamp"] for el in paginated_data)
+    else:
+        maxTimestamp = None
     # Return the paginated response with metadata
     response = jsonify(
         {
@@ -242,7 +238,6 @@ def get_items():
                 "page": page,
                 "per_page": per_page,
                 "total_pages": total_pages,
-                "next": next_link,
             },
             "stats": {"maxTimestamp": maxTimestamp, "limit": per_page},
         }
