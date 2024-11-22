@@ -19,16 +19,17 @@ AUTH0_DOMAIN = env.get("AUTH0_DOMAIN")
 API_IDENTIFIER = env.get("API_IDENTIFIER")
 ALGORITHMS = ["RS256"]
 app = Flask(__name__)
+from datetime import datetime
 
 DATA = [
-    {"id": 1, "name": "Item 1"},
-    {"id": 2, "name": "Item 2"},
-    {"id": 3, "name": "Item 3"},
-    {"id": 4, "name": "Item 4"},
-    {"id": 5, "name": "Item 5"},
-    {"id": 6, "name": "Item 6"},
-    {"id": 7, "name": "Item 7"},
-    {"id": 8, "name": "Item 8"},
+    {"id": 1, "name": "Item 1", "timestamp": datetime(2024, 1, 1).isoformat()},
+    {"id": 2, "name": "Item 2", "timestamp": datetime(2024, 2, 1).isoformat()},
+    {"id": 3, "name": "Item 3", "timestamp": datetime(2024, 3, 1).isoformat()},
+    {"id": 4, "name": "Item 4", "timestamp": datetime(2024, 4, 1).isoformat()},
+    {"id": 5, "name": "Item 5", "timestamp": datetime(2024, 5, 1).isoformat()},
+    {"id": 6, "name": "Item 6", "timestamp": datetime(2024, 6, 1).isoformat()},
+    {"id": 7, "name": "Item 7", "timestamp": datetime(2024, 7, 1).isoformat()},
+    {"id": 8, "name": "Item 8", "timestamp": datetime(2024, 8, 1).isoformat()},
 ]
 
 
@@ -208,17 +209,19 @@ def public():
 def get_items():
     page = request.args.get("page", default=1, type=int)
     per_page = request.args.get("per_page", default=5, type=int)
+    since = request.args.get("since", default="1970-01-01", type=str)
 
     # Validate pagination parameters
     if page < 1 or per_page < 1:
         return jsonify({"error": "Page and per_page must be positive integers"}), 400
 
     # Calculate start and end indices
+    since_data = [el for el in DATA if el["timestamp"] > since]
     start = (page - 1) * per_page
     end = start + per_page
 
     # Slice the data for pagination
-    paginated_data = DATA[start:end]
+    paginated_data = since_data[start:end]
 
     total_items = len(DATA)
     total_pages = (total_items + per_page - 1) // per_page  # Round up
@@ -229,7 +232,7 @@ def get_items():
         next_link = url_for(
             "get_items", page=page + 1, per_page=per_page, _external=True
         )
-
+    maxTimestamp = max(el["timestamp"] for el in paginated_data)
     # Return the paginated response with metadata
     response = jsonify(
         {
@@ -241,9 +244,26 @@ def get_items():
                 "total_pages": total_pages,
                 "next": next_link,
             },
+            "stats": {"maxTimestamp": maxTimestamp, "limit": per_page},
         }
     )
     return response
+
+
+@app.route("/api/locations/new", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
+@requires_auth
+def add_items():
+    max_data_id = max([el["id"] for el in DATA])
+
+    new_item = {
+        "id": max_data_id + 1,
+        "name": f"Item {max_data_id+1}",
+        "timestamp": datetime.now().isoformat(),
+    }
+    DATA.append(new_item)
+    return Response(status=204)
 
 
 if __name__ == "__main__":
