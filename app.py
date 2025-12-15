@@ -250,13 +250,15 @@ def get_items():
 @cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
 @requires_auth
 def add_items():
-    data = json.loads(request.get_data(as_text=True))
+    text_data = request.get_data(as_text=True)
+    print(text_data)
+    data = json.loads(text_data)
     print(request.headers.get("Content-Type"))
     print(data)
     if data and "id" in data:
         new_id = data["id"]
     else:
-        max_data_id = max([el["id"] for el in START_DATA]) if START_DATA else 0
+        max_data_id = len(START_DATA)
         new_id = max_data_id + 1
 
     new_item = {
