@@ -251,6 +251,8 @@ def get_items():
 @requires_auth
 def add_items():
     data = request.get_json()
+    print(request.headers.get("Content-Type"))
+    print(data)
     if data and "id" in data:
         new_id = data["id"]
     else:
