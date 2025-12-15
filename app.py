@@ -250,11 +250,16 @@ def get_items():
 @cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
 @requires_auth
 def add_items():
-    max_data_id = max([el["id"] for el in DATA])
+    data = request.get_json()
+    if data and "id" in data:
+        new_id = data["id"]
+    else:
+        max_data_id = max([el["id"] for el in DATA]) if DATA else 0
+        new_id = max_data_id + 1
 
     new_item = {
-        "id": max_data_id + 1,
-        "name": f"Item {max_data_id+1}",
+        "id": new_id,
+        "name": f"Item {new_id}",
         "timestamp": datetime.now().isoformat(),
     }
     DATA.append(new_item)
