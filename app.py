@@ -21,7 +21,7 @@ ALGORITHMS = ["RS256"]
 app = Flask(__name__)
 from datetime import datetime
 
-DATA = [
+START_DATA = [
     {"id": 1, "name": "Item 1", "timestamp": datetime(2024, 1, 1).isoformat()},
     # {"id": 2, "name": "Item 2", "timestamp": datetime(2024, 2, 1).isoformat()},
     # {"id": 3, "name": "Item 3", "timestamp": datetime(2024, 3, 1).isoformat()},
@@ -216,14 +216,14 @@ def get_items():
         return jsonify({"error": "Page and per_page must be positive integers"}), 400
 
     # Calculate start and end indices
-    since_data = [el for el in DATA if el["timestamp"] > since]
+    since_data = [el for el in START_DATA if el["timestamp"] > since]
     start = (page - 1) * per_page
     end = start + per_page
 
     # Slice the data for pagination
     paginated_data = since_data[start:end]
 
-    total_items = len(DATA)
+    total_items = len(START_DATA)
     total_pages = (total_items + per_page - 1) // per_page  # Round up
     if len(paginated_data) > 0:
         maxTimestamp = max(el["timestamp"] for el in paginated_data)
@@ -253,10 +253,11 @@ def add_items():
     data = request.get_json()
     print(request.headers.get("Content-Type"))
     print(data)
+    print(type(data))
     if data and "id" in data:
         new_id = data["id"]
     else:
-        max_data_id = max([el["id"] for el in DATA]) if DATA else 0
+        max_data_id = max([el["id"] for el in START_DATA]) if START_DATA else 0
         new_id = max_data_id + 1
 
     new_item = {
@@ -264,7 +265,7 @@ def add_items():
         "name": f"Item {new_id}",
         "timestamp": datetime.now().isoformat(),
     }
-    DATA.append(new_item)
+    START_DATA.append(new_item)
     return Response(status=204)
 
 
