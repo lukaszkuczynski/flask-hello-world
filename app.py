@@ -23,13 +23,13 @@ from datetime import datetime
 
 DATA = [
     {"id": 1, "name": "Item 1", "timestamp": datetime(2024, 1, 1).isoformat()},
-    {"id": 2, "name": "Item 2", "timestamp": datetime(2024, 2, 1).isoformat()},
-    {"id": 3, "name": "Item 3", "timestamp": datetime(2024, 3, 1).isoformat()},
-    {"id": 4, "name": "Item 4", "timestamp": datetime(2024, 4, 1).isoformat()},
-    {"id": 5, "name": "Item 5", "timestamp": datetime(2024, 5, 1).isoformat()},
-    {"id": 6, "name": "Item 6", "timestamp": datetime(2024, 6, 1).isoformat()},
-    {"id": 7, "name": "Item 7", "timestamp": datetime(2024, 7, 1).isoformat()},
-    {"id": 8, "name": "Item 8", "timestamp": datetime(2024, 8, 1).isoformat()},
+    # {"id": 2, "name": "Item 2", "timestamp": datetime(2024, 2, 1).isoformat()},
+    # {"id": 3, "name": "Item 3", "timestamp": datetime(2024, 3, 1).isoformat()},
+    # {"id": 4, "name": "Item 4", "timestamp": datetime(2024, 4, 1).isoformat()},
+    # {"id": 5, "name": "Item 5", "timestamp": datetime(2024, 5, 1).isoformat()},
+    # {"id": 6, "name": "Item 6", "timestamp": datetime(2024, 6, 1).isoformat()},
+    # {"id": 7, "name": "Item 7", "timestamp": datetime(2024, 7, 1).isoformat()},
+    # {"id": 8, "name": "Item 8", "timestamp": datetime(2024, 8, 1).isoformat()},
 ]
 
 
@@ -208,7 +208,7 @@ def public():
 @requires_auth
 def get_items():
     page = request.args.get("page", default=1, type=int)
-    per_page = request.args.get("per_page", default=5, type=int)
+    per_page = request.args.get("per_page", default=10, type=int)
     since = request.args.get("since", default="1970-01-01", type=str)
 
     # Validate pagination parameters
