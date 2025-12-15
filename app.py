@@ -250,7 +250,7 @@ def get_items():
 @cross_origin(headers=["Access-Control-Allow-Origin", "http://localhost:3000"])
 @requires_auth
 def add_items():
-    data = request.get_json()
+    data = json.loads(request.get_json())
     print(request.headers.get("Content-Type"))
     print(data)
     print(type(data))
